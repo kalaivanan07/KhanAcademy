@@ -10,7 +10,6 @@ probability distribution
 
 '''
 # khan academy stats
-
 import matplotlib.pyplot as plt  # To visualize
 
 # generate related variables
