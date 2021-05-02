@@ -1,3 +1,14 @@
+'''
+---history----
+
+bar_plot
+bar plot head and tail, and dice
+std_dv
+covariance 
+correlation
+probability distribution
+
+'''
 # khan academy stats
 
 import matplotlib.pyplot as plt  # To visualize
