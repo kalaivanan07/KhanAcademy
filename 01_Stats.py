@@ -1,19 +1,8 @@
-'''
----history----
-
-bar_plot
-bar plot head and tail, and dice
-std_dv
-covariance 
-correlation
-probability distribution
-
-'''
 # khan academy stats
 import matplotlib.pyplot as plt  # To visualize
-
 # generate related variables
 import random
+import numpy as np 
 from numpy import arange
 from numpy import mean
 from numpy import std
@@ -24,6 +13,7 @@ from numpy.random import seed
 from scipy.stats import pearsonr
 from scipy.stats import spearmanr
 from scipy.stats import norm 
+from scipy import integrate
 import math 
 
 def bar_plot(x, y):
@@ -178,6 +168,32 @@ def corr():
     plt.scatter(data1, data2)
     plt.show()
 
+def plot_two_pdf(x1_axis, x2_axis):
+    
+    x1_axis.sort()
+    x2_axis.sort()
+    plt.plot(x1_axis, my_pdf(x1_axis)[0], 'grey')
+    plt.plot(x2_axis, my_pdf(x2_axis)[0], 'blue')
+    return 'Hi'
+
+def sigmoid():
+    xl = np.linspace(-10, 10, 100)
+    #x =np.array([0]*len(xl))
+    #yl = np.linspace(-100, 100, 100)
+    ey = 1/ (1 + np.exp(xl))
+    plot_graph(xl, ey, 'red')
+    #plt.plot(xl, -xl, color = 'yellow')
+
+def nonconvex():
+    x = np.linspace(-2, 2, 100)
+    y = x**4 + x**3 -2*x**2 -2*x
+    plot_graph(x,y, 'grey')
+    
+def convex():
+    x = np.linspace(-2, 2, 100)
+    y = x**2
+    plot_graph(x,y, 'blue')
+
 def sci_pdf(x_axis):
     # plotting a normal distribution using python lib
     #x_axis = 20 * randn(100) + 50
@@ -185,44 +201,74 @@ def sci_pdf(x_axis):
     mu   = mean(x_axis)
     si   = std(x_axis)
     ndis = norm.pdf(x_axis, mean(x_axis), std(x_axis))
+    plot_graph(range(len(x_axis)), ndis, 'grey')
+    #print(ndis)
     return (ndis, mu, si)
 
-def my_pdf(x_axis):
-    # plotting a normal distribution using math formula
-    y_ndis = []
-    mu   = mean(x_axis)
-    si   = std(x_axis)
-    for eac in x_axis:
-        z = (eac-mu)/si
-        y_ndis.append(1/(math.sqrt( 2 * math.pi * si**2 * math.e**(z**2))))
-    return (y_ndis, mu, si)
-
-def sci_cdf(x_axis):
+def sci_cdf(x_axis, a, b):
     # plotting cdf using python lib
     #x_axis = 20 * randn(100) + 50
     x_axis.sort()
     ndis = norm.pdf(x_axis, mean(x_axis), std(x_axis))
     cdf = cumsum(ndis)
-    return cdf
+    print(cdf)
+    plot_graph(range(len(x_axis)), cdf, 'grey')   
 
-def my_cdf(x_axis):
-    y_ndis = my_pdf(x_axis, mean(x_axis), std(x_axis))
-    return y_ndis.sort()
+def i_pdf(x_axis):
+    # plotting a normal distribution using math formula
+    x_axis.sort()
+    y_ndis = []
+    mu   = mean(x_axis)
+    si   = std(x_axis)
+    print(si, mu)
+    for eac in x_axis:
+        z = (eac-mu)/si
+        y_ndis.append(1/(math.sqrt( 2 * math.pi * si**2 * math.e**(z**2))))
+    plot_graph(x_axis, y_ndis, 'grey')
+    #(res, err) = area_curve(y_ndis, a, b)
+    gfg = lambda x: 1/(math.sqrt( 2 * math.pi * si**2 * math.e**(((x-mu)/si)**2)))
+    res = integrate.quad(gfg , 30, 70)
+    #plt.fill_between(a, b, color='#0b559f', alpha='1.0')
+    #print(res, err)
+    return y_ndis
 
-def prob_area(x_axis, y):
-    #calculating prob area
-    (dis, mu, si) = sci_pdf(x_axis)
-    print(norm(loc = mu, scale = si).cdf(y))
-    (dis, mu, si) = my_pdf(x_axis)
-    print(norm(loc = mu, scale = si).cdf(y))
-    return norm(loc = mu, scale = si).cdf(y)
+def i_cdf(x_axis):
+    # plotting cumulative distributive function 
+    y_ndis = i_pdf(x_axis)
+    y_cdf = []
+    y_sum = 0
+    for eac in range(len(y_ndis)):
+        y_sum += y_ndis[eac]
+        y_cdf.append(y_sum)
+    plot_graph(range(len(x_axis)), y_cdf, 'grey')
+    return y_cdf
 
 def plot_graph(x_axis, y_axis, color):
+    plt.figure(figsize=(10,8))
     plt.plot(x_axis , y_axis, color = color)
 
-def plot_two_pdf(x1_axis, x2_axis):
-    x1_axis.sort()
-    x2_axis.sort()
-    plt.plot(x1_axis, my_pdf(x1_axis)[0], 'grey')
-    plt.plot(x2_axis, my_pdf(x2_axis)[0], 'blue')
-    return 'Hi'
+# from pylab import *
+def cdff():
+    # Create some test data
+    dx = 0.01
+    #X  = np.arange(-2, 2, dx)
+    X  = np.arange(-2, 2, dx)
+    Y  = np.exp(-X ** 2)
+    
+    # Normalize the data to a proper PDF
+    Y /= (dx * Y).sum()
+    
+    # Compute the CDF
+    CY = np.cumsum(Y * dx) 
+    
+    # Plot both
+    plt.plot(X, Y)
+    plt.plot(X, CY, 'r--')
+    
+    show()
+
+def area_intgrl():
+    gfg = lambda x: x**2 + x + 1
+    # using scipy.integrate.quad() method
+    geek = integrate.quad(gfg, 1, 4)
+    print(geek)
