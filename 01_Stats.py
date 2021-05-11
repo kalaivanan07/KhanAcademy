@@ -15,6 +15,8 @@ from scipy.stats import spearmanr
 from scipy.stats import norm 
 from scipy import integrate
 import math 
+from math import erf
+from math import sqrt 
 
 def bar_plot(x, y):
     fig = plt.figure()
@@ -214,7 +216,7 @@ def sci_cdf(x_axis, a, b):
     print(cdf)
     plot_graph(range(len(x_axis)), cdf, 'grey')   
 
-def i_pdf(x_axis):
+def i_pdf(x_axis, a, b):
     # plotting a normal distribution using math formula
     x_axis.sort()
     y_ndis = []
@@ -225,12 +227,10 @@ def i_pdf(x_axis):
         z = (eac-mu)/si
         y_ndis.append(1/(math.sqrt( 2 * math.pi * si**2 * math.e**(z**2))))
     plot_graph(x_axis, y_ndis, 'grey')
-    #(res, err) = area_curve(y_ndis, a, b)
-    gfg = lambda x: 1/(math.sqrt( 2 * math.pi * si**2 * math.e**(((x-mu)/si)**2)))
-    res = integrate.quad(gfg , 30, 70)
-    #plt.fill_between(a, b, color='#0b559f', alpha='1.0')
-    #print(res, err)
-    return y_ndis
+    fill_area(x_axis,y_ndis,si,mu,a,b)
+    area_intgrl(a, b)
+    # return (y_ndis, mu, si)
+    return 
 
 def i_cdf(x_axis):
     # plotting cumulative distributive function 
@@ -247,7 +247,45 @@ def plot_graph(x_axis, y_axis, color):
     plt.figure(figsize=(10,8))
     plt.plot(x_axis , y_axis, color = color)
 
-# from pylab import *
+def fill_area(x_axis, y_axis, si, mu, a, b):
+    x_fill = []
+    y_fill = []
+    for i in range(x_axis.shape[0]):
+        if x_axis[i] >= a and x_axis[i] <= b:
+            x_fill.append(x_axis[i])
+            y_fill.append(y_axis[i])
+    #print(x_axis)
+    #print(y_axis)
+    plt.fill_between(x_fill, y_fill, color='#0b559f', alpha=1.0)
+                     
+def area_intgrl(a, b):
+    '''
+    gfg = lambda x: x**2 + x + 1
+    # using scipy.integrate.quad() method
+    geek = integrate.quad(gfg, 1, 4)
+    print(geek)
+    '''
+    #(res, err) = area_curve(y_ndis, a, b)
+    gfg = lambda x: 1/(math.sqrt( 2 * math.pi * si**2 * math.e**(((x-mu)/si)**2)))
+    res = integrate.quad(gfg , a, b)
+    print('Area under curve is: %.3f'% (res[0]*100))
+
+def area_under_curve(x_axis, a, b):
+    (y_ndis, mu, si) =  i_pdf(x_axis)
+    
+    # probability from Z=0 to lower bound
+    double_prob = math.erf((a-mu) / (si*sqrt(2)))
+    p_lower = double_prob/2
+    print(f'\n Lower Bound: {round(p_lower,4)}')
+    
+    # probability from Z=0 to upper bound
+    double_prob = math.erf( (b-mu) / (si*sqrt(2)) )
+    p_upper = double_prob/2
+    print(f'\n Upper Bound: {round(p_upper,4)}')
+    print('Area under curve :%.3f'% (p_upper-p_lower))
+
+
+# need to understand 
 def cdff():
     # Create some test data
     dx = 0.01
@@ -266,9 +304,3 @@ def cdff():
     plt.plot(X, CY, 'r--')
     
     show()
-
-def area_intgrl():
-    gfg = lambda x: x**2 + x + 1
-    # using scipy.integrate.quad() method
-    geek = integrate.quad(gfg, 1, 4)
-    print(geek)
