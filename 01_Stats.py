@@ -17,6 +17,9 @@ from scipy import integrate
 import math 
 from math import erf
 from math import sqrt 
+import pandas as pd
+from ast import literal_eval
+import datetime 
 
 def bar_plot(x, y):
     fig = plt.figure()
@@ -304,3 +307,25 @@ def cdff():
     plt.plot(X, CY, 'r--')
     
     show()
+
+def corona_graph(file):
+    try:
+
+        df = pd.read_csv(file, header=None, sep='\n')
+        print(df)
+        df = df[0].str.strip(',').apply(literal_eval).apply(pd.Series)
+        print(df)
+        df[0] = df[0].agg(lambda x: pd.to_datetime('-'.join(map(str, x))))
+        print(df)
+        
+        plt.figure(figsize=(10,6))
+        plt.plot(df[0], df[1], color = 'grey', linestyle='dashed')
+        plt.plot(df[0], df[2], color = 'blue', linestyle='dashed')
+        plt.legend(['Daily Cases', 'Daily cure']) 
+        plt.show()
+        plt.plot(df[0], df[3], color = 'red', linestyle='dashed')
+        plt.legend(['Death count'])
+        plt.show()
+        
+    except Exception as e:
+        print(e)
